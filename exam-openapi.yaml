@@ -21,7 +21,9 @@ tags:
   - name: Report
     description: Reports
   - name: Admin
-    description: Super admin operations
+    description: Super-admin operations
+  - name: Role
+    description: Role management
 paths:
   /user:
     get:
@@ -56,8 +58,10 @@ paths:
               properties:
                 email:
                   type: string
+                  default: john.doe@example.com
                 password:
                   type: string
+                  default: password123
       responses:
         "200":
           description: Logged in
@@ -75,11 +79,7 @@ paths:
       summary: Get user by id
       security: [{ bearerAuth: [] }]
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/Id'
       responses:
         "200":
           description: User
@@ -107,6 +107,41 @@ paths:
       responses:
         "204":
           description: Deleted
+  /admin:
+    post:
+      tags: [Admin]
+      summary: Create super-admin
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminInput'
+      responses:
+        "201":
+          description: Super-admin created
+  /roles:
+    get:
+      tags: [Role]
+      summary: Get all roles
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: List of roles
+    post:
+      tags: [Role]
+      summary: Create a new role
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleInput'
+      responses:
+        "201":
+          description: Role created
   /transport:
     get:
       tags: [TransportService]
@@ -315,64 +350,108 @@ components:
       required: true
       schema:
         type: integer
+        default: 1
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   schemas:
+    RoleInput:
+      type: object
+      properties:
+        name:
+          type: string
+          enum: [admin, owner, client]
+          default: client
+
     UserInput:
       type: object
       properties:
         full_name:
           type: string
+          default: John Doe
         email:
           type: string
+          default: john.doe@example.com
         password:
           type: string
+          default: password123
         role:
           type: string
+          enum: [admin, owner, client]
+          default: client
+
+    AdminInput:
+      allOf:
+        - $ref: '#/components/schemas/UserInput'
+        - type: object
+          properties:
+            role:
+              type: string
+              enum: [admin]
+              default: admin
+
     TransportServiceInput:
       type: object
       properties:
         vehicle_type:
           type: string
+          default: bus
         reg_number:
           type: string
+          default: ABC-123
         status:
           type: string
+          default: active
+
     BookingInput:
       type: object
       properties:
         booking_date:
           type: string
           format: date
+          default: '2025-06-13'
         status:
           type: string
+          default: pending
         seat_number:
           type: integer
+          default: 1
         userId:
           type: integer
+          default: 1
         transportServiceId:
           type: integer
+          default: 1
+
     PaymentInput:
       type: object
       properties:
         amount:
           type: number
           format: float
+          default: 100.00
         payment_date:
           type: string
           format: date
+          default: '2025-06-13'
         bookingId:
           type: integer
+          default: 1
+
     ReportInput:
       type: object
       properties:
         reportDate:
           type: string
           format: date
+          default: '2025-06-01'
         trips_count:
           type: integer
+          default: 10
         transportServiceId:
           type: integer
+          default: 1
