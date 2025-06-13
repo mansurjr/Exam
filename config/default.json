@@ -1,0 +1,29 @@
+{
+  "PORT": 3000,
+  "db": {
+    "password": "712285345",
+    "database": "Transport",
+    "username": "postgres"
+  },
+  "api": "http://19.184.125.47",
+  "DB_HOST": "localhost",
+  "DB_PORT": 5432,
+  "smtp_password": "vhaznxpugxkmdkmi",
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "smpt_use": "ztm007uzb@gmail.com",
+  "api_url": "http://localhost:5000",
+  "admin": {
+    "refresh_time": "3d",
+    "access_time": 3600,
+    "access_key" : "9d2ec4a784a5d1f1ce01a9db4df1247382aa75e86d5c1d3f83d2d644aa868f0dce069a53c95bfed95186396271cc1bc2483d874ca1fec584c0b72f16c9506b43",
+    "refresh_key": "ebebcf7a12e52e2c28785b4b87cdbbb2e381e7dfb18a65ea68b31a34dfba88038059f5b4751ab83868262de30690967bce3cbaf43e5b7fd63255295e18f37119"
+  },
+  "user": {
+    "refresh_time": "1d",
+    "access_time": 3600,
+    "access_key" : "b9133521abd06bf6c388787d1ab508291ab02b47d65e470c977168c829db89c89d1877d6f1568e6fc87471455a55cdd7705e1cb245eb5474d9213093f8a3d6de",
+    "refresh_key": "3402d7ae10f1d1f533380511690d169522b809392bda4d9e62d88eb1e162e2e76087f860bf25a93a785c5cf396b8a341477056a727b38bf6682ab282c375bc95"
+  },
+  "cookieTime" : 3600
+}
