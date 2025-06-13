@@ -1,5 +1,5 @@
 const error_response = require("../utils/error_response");
-const TransportService = require("../models/transport_service");
+const TransportService = require("../models/transportService");
 const Routes = require("../models/route.model");
 const { v4: uuidv4 } = require("uuid");
 

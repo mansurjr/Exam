@@ -1,5 +1,5 @@
 const error_response = require("../utils/error_response");
-const Report = require("../models/report");
+const Report = require("../models/reports");
 const TransportService = require("../models/transportService");
 const User = require("../models/user");
 
