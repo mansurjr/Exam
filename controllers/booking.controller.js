@@ -126,10 +126,126 @@ const deleteBookingById = async (req, res) => {
   }
 };
 
+const getBookingsByDate = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const [results] = await sequelize.query(
+      `
+      SELECT ts.id, ts.vehicle_type, ts.reg_number, ts.model,
+             COUNT(b.id) AS usage_count
+      FROM "TransportService" ts
+      JOIN "booking" b ON b."TransportServiceId" = ts.id
+      WHERE b.booking_date BETWEEN :startDate AND :endDate
+        AND b.status = 'confirmed'
+      GROUP BY ts.id
+      ORDER BY usage_count DESC
+    `,
+      {
+        replacements: { startDate, endDate },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+    res.json(results);
+  } catch (error) {
+    error_response(res);
+  }
+};
+
+exports.getActiveClients = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  try {
+    const [results] = await sequelize.query(
+      `
+      SELECT DISTINCT u.id, u.first_name, u.last_name, u.email
+      FROM "Users" u
+      JOIN "UserRoles" ur ON ur."userId" = u.id
+      JOIN "Roles" r ON r.id = ur."roleId" AND r.name = 'client'
+      JOIN "booking" b ON b."userId" = u.id
+      WHERE b.booking_date BETWEEN :startDate AND :endDate
+        AND b.status = 'confirmed'
+    `,
+      {
+        replacements: { startDate, endDate },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+    res.json(results);
+  } catch (e) {
+    error_response(res);
+  }
+};
+
+exports.getCancelledClients = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  try {
+    const [results] = await sequelize.query(
+      `
+      SELECT DISTINCT u.id, u.first_name, u.last_name, u.email
+      FROM "Users" u
+      JOIN "UserRoles" ur ON ur."userId" = u.id
+      JOIN "Roles" r ON r.id = ur."roleId" AND r.name = 'client'
+      JOIN "booking" b ON b."userId" = u.id
+      WHERE b.booking_date BETWEEN :startDate AND :endDate
+        AND b.status = 'cancelled'
+    `,
+      {
+        replacements: { startDate, endDate },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    res.json(results);
+  } catch (e) {
+    error_response(res);
+  }
+};
+
+exports.getClientPayments = async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    const [results] = await sequelize.query(
+      `
+      SELECT p.id AS payment_id,
+             p.amount,
+             p.payment_date,
+             p.method,
+             p.status AS payment_status,
+             b.booking_date,
+             b.status AS booking_status,
+             ts.vehicle_type,
+             ts.reg_number,
+             ts.model,
+             ts.price
+      FROM "Payment" p
+      JOIN "booking" b ON b.id = p."BookingId"
+      JOIN "TransportService" ts ON ts.id = b."TransportServiceId"
+      WHERE b."userId" = :clientId
+      ORDER BY p.payment_date DESC
+    `,
+      {
+        replacements: { clientId },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    res.json(results);
+  } catch (e) {
+    error_response(res);
+  }
+};
+
 module.exports = {
   getAllBookings,
   getBookingById,
   createBooking,
   updateBookingById,
   deleteBookingById,
+  getBookingsByDate,
+  getActiveClients,
+  getCancelledClients,
+  getClientPayments,
 };
