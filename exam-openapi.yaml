@@ -7,8 +7,8 @@ info:
     _Generated for interactive testing in Swagger UI._
   version: "1.0.0"
 servers:
-  - url: http://localhost:5000/api
-    description: Local server
+  - url: http://18.184.125.47:3000/api
+    description: Production Server
 tags:
   - name: User
     description: User authentication & management
