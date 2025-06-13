@@ -4,11 +4,17 @@ const sequelize = require("./config/db");
 const CookieParser = require("cookie-parser");
 const Routes = require("./routes/index.routes");
 
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+const swaggerDocument = YAML.load("./exam-openapi.yaml");
+
 const app = express();
 
 app.use(express.json());
 app.use(CookieParser());
 app.use("/api", Routes);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = config.get("PORT") || 5000;
 
@@ -22,7 +28,8 @@ async function start() {
 
     app.listen(PORT, () =>
       console.log(
-        `🚀 Server started at http://localhost:${PORT}\nPress CTRL + C to stop the process`
+        `🚀 Server started at http://localhost:${PORT}
+📚 Swagger UI: http://localhost:${PORT}/api-docs`
       )
     );
   } catch (error) {

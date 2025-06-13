@@ -152,7 +152,7 @@ const getBookingsByDate = async (req, res) => {
   }
 };
 
-exports.getActiveClients = async (req, res) => {
+const getActiveClients = async (req, res) => {
   const { startDate, endDate } = req.query;
 
   try {
@@ -177,7 +177,7 @@ exports.getActiveClients = async (req, res) => {
   }
 };
 
-exports.getCancelledClients = async (req, res) => {
+const getCancelledClients = async (req, res) => {
   const { startDate, endDate } = req.query;
 
   try {
@@ -203,7 +203,7 @@ exports.getCancelledClients = async (req, res) => {
   }
 };
 
-exports.getClientPayments = async (req, res) => {
+const getClientPayments = async (req, res) => {
   const { clientId } = req.params;
 
   try {
@@ -247,5 +247,4 @@ module.exports = {
   getBookingsByDate,
   getActiveClients,
   getCancelledClients,
-  getClientPayments,
 };

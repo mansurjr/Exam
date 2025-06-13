@@ -23,6 +23,8 @@
     "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
     "sequelize": "^6.37.7",
-    "winston": "^3.17.0"
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.17.0",
+    "yamljs": "^0.3.0"
   }
 }
