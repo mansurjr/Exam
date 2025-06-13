@@ -9,7 +9,7 @@ const isSuperAdminGuard = require("../middlewares/guards/isSuperAdmin.guard");
 const IndexRoter = require("express").Router();
 
 IndexRoter.use("/user", UserRoutes);
-IndexRoter.use("/admin", isSuperAdminGuard([]), AdminRoutes);
+IndexRoter.use("/admin", AdminRoutes);
 IndexRoter.use("/transport", TransportRoutes);
 IndexRoter.use("/booking", BookingRoutes);
 IndexRoter.use("/payment", PaymentRoutes);
