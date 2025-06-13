@@ -4,7 +4,8 @@ const TransportRoutes = require("./transportService.routes");
 const BookingRoutes = require("./booking.routes");
 const PaymentRoutes = require("./payment.routes");
 const ReportRoutes = require("./report.routes");
-const SuperAdminRoute = require("./superAdmin.route")
+const SuperAdminRoute = require("./superAdmin.route");
+const RoleRoutes = require("./role.routes");
 const isSuperAdminGuard = require("../middlewares/guards/isSuperAdmin.guard");
 const IndexRoter = require("express").Router();
 
