@@ -9,6 +9,7 @@ const Payment = sequelize.define(
       type: DataTypes.INTEGER,
       primaryKey: true,
       allowNull: false,
+      autoIncrement: true,
     },
     amount: {
       type: DataTypes.DECIMAL(10, 2),

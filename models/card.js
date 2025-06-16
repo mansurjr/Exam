@@ -15,7 +15,7 @@ const Card = sequelize.define(
       unique: true,
     },
     exp_date: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     desc: {

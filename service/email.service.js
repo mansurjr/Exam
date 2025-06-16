@@ -19,7 +19,7 @@ async function sendActivationEmail(email, activationToken) {
       },
     });
 
-    const activationLink = `${API_URL}/users/activate/${activationToken}`;
+    const activationLink = `${API_URL}/user/activate/${activationToken}`;
 
     const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 30px;">

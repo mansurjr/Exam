@@ -5,7 +5,7 @@ const createReportSchema = Joi.object({
   trips_count: Joi.number().integer().min(0).required(),
   totalrevenue: Joi.number().precision(2).min(0).required(),
   TransportServiceId: Joi.number().integer().required(),
-  UserId: Joi.number().integer().required(),
+  userId: Joi.number().integer().required(),
 });
 
 const updateReportSchema = Joi.object({
@@ -13,7 +13,7 @@ const updateReportSchema = Joi.object({
   trips_count: Joi.number().integer().min(0).optional(),
   totalrevenue: Joi.number().precision(2).min(0).optional(),
   TransportServiceId: Joi.number().integer().optional(),
-  UserId: Joi.number().integer().optional(),
+  userId: Joi.number().integer().optional(),
 });
 
 module.exports = {

@@ -6,28 +6,32 @@ const {
   createUser,
 } = require("../controllers/user.controller");
 const {
-  loginAuthor,
   ActivateUser,
   ResendActivationLink,
   RefreshToken,
   UserLogout,
+  login,
+  ResetPassword,
 } = require("../controllers/UserAuth.controller");
-const self_checkGuard = require("../middlewares/guards/self_check.guard");
+const roleChecker = require("../middlewares/guards/isPermittedRole.guard");
+const selfGuard = require("../middlewares/guards/self_check.guard");
 const tokenGuard = require("../middlewares/guards/token.guard");
 
 const router = require("express").Router();
 
-router.get("/", tokenGuard, getAllUsers);
-router.get("/driver", tokenGuard, getAllUsers("driver"));
-router.get("/users", tokenGuard, getAllUsers("customer"));
+router.get("/", tokenGuard, roleChecker(), getAllUsers());
+router.get("/driver", tokenGuard, roleChecker("admin"), getAllUsers("driver"));
+router.get("/client", tokenGuard, roleChecker("admin"), getAllUsers("client"));
+router.get("/admin", tokenGuard, roleChecker(), getAllUsers("admin"));
 router.post("/register", createUser);
-router.post("/login", loginAuthor);
-router.get("/logout", UserLogout);
+router.post("/reset/:id", tokenGuard, selfGuard, ResetPassword);
+router.post("/login", login);
+router.get("/logout", tokenGuard, UserLogout);
 router.get("/refresh", tokenGuard, RefreshToken);
 router.get("/activate/:id", ActivateUser);
 router.get("/resend/:id", ResendActivationLink);
-router.get("/:id", tokenGuard, getUserById);
-router.patch("/:id", tokenGuard, self_checkGuard, updateUserById);
-router.delete("/:id", tokenGuard, self_checkGuard, deleteUserById);
+router.get("/:id", tokenGuard, selfGuard, getUserById);
+router.patch("/:id", tokenGuard, selfGuard, updateUserById);
+router.delete("/:id", tokenGuard, selfGuard, deleteUserById);
 
 module.exports = router;

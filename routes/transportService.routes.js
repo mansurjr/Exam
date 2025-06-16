@@ -5,13 +5,29 @@ const {
   updateTransportServiceById,
   getTransportServiceById,
 } = require("../controllers/transportService.controller");
-
 const router = require("express").Router();
+const roleChecker = require("../middlewares/guards/isPermittedRole.guard");
+const tokenGuard = require("../middlewares/guards/token.guard");
 
-router.get("/", getAllTransportServices);
-router.post("/", createTransportService);
-router.get("/:id", getTransportServiceById);
-router.put("/:id", updateTransportServiceById);
-router.delete("/:id", deleteTransportServiceById);
+router.get(
+  "/",
+  tokenGuard,
+  roleChecker("admin", "client"),
+  getAllTransportServices
+);
+router.post(
+  "/",
+  tokenGuard,
+  roleChecker(["admin"]),
+  createTransportService
+);
+router.get("/:id", tokenGuard, getTransportServiceById);
+router.put("/:id", tokenGuard, updateTransportServiceById);
+router.delete(
+  "/:id",
+  tokenGuard,
+  roleChecker("admin"),
+  deleteTransportServiceById
+);
 
 module.exports = router;

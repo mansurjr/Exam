@@ -12,7 +12,7 @@
   "smtp_host": "smtp.gmail.com",
   "smtp_port": 587,
   "smpt_use": "ztm007uzb@gmail.com",
-  "api_url": "http://localhost:5000",
+  "api_url": "http://localhost:3000/api",
   "admin": {
     "refresh_time": "3d",
     "access_time": 3600,

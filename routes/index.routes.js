@@ -4,9 +4,8 @@ const TransportRoutes = require("./transportService.routes");
 const BookingRoutes = require("./booking.routes");
 const PaymentRoutes = require("./payment.routes");
 const ReportRoutes = require("./report.routes");
-const SuperAdminRoute = require("./superAdmin.route");
-const RoleRoutes = require("./role.routes");
-const isSuperAdminGuard = require("../middlewares/guards/isSuperAdmin.guard");
+const CardRoutes = require("./card.routes");
+const TransportrouteRoutes = require("./TransportRoutes.routes")
 const IndexRoter = require("express").Router();
 
 IndexRoter.use("/user", UserRoutes);
@@ -15,6 +14,7 @@ IndexRoter.use("/transport", TransportRoutes);
 IndexRoter.use("/booking", BookingRoutes);
 IndexRoter.use("/payment", PaymentRoutes);
 IndexRoter.use("/report", ReportRoutes);
-IndexRoter.use("/superadmin", SuperAdminRoute);
+IndexRoter.use("/card", CardRoutes);
+IndexRoter.use("/route", TransportrouteRoutes);
 
 module.exports = IndexRoter;

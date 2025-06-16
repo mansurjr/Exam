@@ -2,15 +2,11 @@ const User = require("../models/user");
 const { errorResponse } = require("../utils/error_response");
 const { createUserSchema } = require("../validation/user.validation");
 
-const createSuperAdmin = async (req, res) => {
+const createAdmin = async (req, res) => {
   try {
     const { error, value } = createUserSchema.validate(req.body);
     if (error) {
-      return errorResponse(res, {
-        message: error.details[0].message,
-        status: 400,
-        error: error.details[0].message,
-      });
+      return errorResponse(res, { message: error.details[0].message });
     }
     const user = await User.findOne({
       where: { email: value.email, username: value.username },
@@ -23,13 +19,13 @@ const createSuperAdmin = async (req, res) => {
       });
     }
     value.role = "admin";
-    value.isCreator = true;
+    value.isCreator = false;
     value.isActive = true;
     await User.create(value);
-    res.status(201).json({ messege: "Created successfully" });
+    res.status(201).json({ messege: "Admin created successfully" });
   } catch (error) {
     errorResponse(res, { error });
   }
 };
 
-module.exports = createSuperAdmin;
+module.exports = createAdmin;

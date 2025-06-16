@@ -12,8 +12,10 @@ const createUserSchema = Joi.object({
   avatar_url: Joi.string().uri().optional().allow(null, ""),
   address: Joi.string().optional().allow(null, ""),
   gender: Joi.string().valid("male", "female").optional().allow(null),
-  roleIds: Joi.array().items(Joi.number().integer()).optional(),
-  cardIds: Joi.array().items(Joi.number().integer()).optional(),
+  role: Joi.string()
+    .valid("admin", "client", "driver")
+    .optional()
+    .default("client"),
 });
 
 const updateUserSchema = Joi.object({
@@ -26,10 +28,6 @@ const updateUserSchema = Joi.object({
   avatar_url: Joi.string().uri().optional().allow(null, ""),
   address: Joi.string().optional().allow(null, ""),
   gender: Joi.string().valid("male", "female").optional().allow(null),
-  isActive: Joi.boolean().optional(),
-  activation_link: Joi.string().optional().allow(null, ""),
-  roleIds: Joi.array().items(Joi.number().integer()).optional(),
-  cardIds: Joi.array().items(Joi.number().integer()).optional(),
 });
 
 module.exports = {

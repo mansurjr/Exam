@@ -1,16 +1,17 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const bcrypt = require("bcrypt");
-const Role = require("./role");
 const Card = require("./card");
+const TransportService = require("./transportService");
 
 const User = sequelize.define(
-  "User",
+  "user",
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       allowNull: false,
+      autoIncrement: true,
     },
     username: {
       type: DataTypes.STRING(50),
@@ -65,14 +66,25 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    isCreator : {
+    isCreator: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
     token: {
-      type : DataTypes.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
-    }
+    },
+    role: {
+      type: DataTypes.ENUM("admin", "client", "driver"),
+      allowNull: false,
+      defaultValue: "client",
+    },
+    full_name: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return `${this.first_name} ${this.last_name}`;
+      },
+    },
   },
   {
     tableName: "User",
@@ -92,10 +104,10 @@ const User = sequelize.define(
   }
 );
 
-User.belongsToMany(Role, { through: "UserRoles" });
-Role.belongsToMany(User, { through: "UserRoles" });
-
 User.hasMany(Card);
-Card.belongsTo(User);
+Card.belongsTo(User, { onDelete: "CASCADE", onUpdate: "CASCADE" });
+
+User.hasOne(TransportService);
+TransportService.belongsTo(User);
 
 module.exports = User;

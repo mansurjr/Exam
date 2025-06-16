@@ -1,4 +1,4 @@
-const error_response = require("../utils/error_response");
+const { errorResponse } = require("../utils/error_response");
 const Booking = require("../models/booking");
 const User = require("../models/user");
 const TransportService = require("../models/transportService");
@@ -23,15 +23,16 @@ const getAllBookings = async (_, res) => {
     });
 
     if (!bookings.length) {
-      return error_response(res, {
+      return errorResponse(res, {
         message: "No bookings found",
         status: 404,
+        error: "No bookings found",
       });
     }
 
     res.status(200).send({ data: bookings });
   } catch (error) {
-    error_response(res, error);
+    errorResponse(res, { error });
   }
 };
 
@@ -53,29 +54,50 @@ const getBookingById = async (req, res) => {
     });
 
     if (!booking) {
-      return error_response(res, {
+      return errorResponse(res, {
         message: "Booking not found",
         status: 404,
+        error: "Booking not found",
       });
     }
 
     res.status(200).send({ data: booking });
   } catch (error) {
-    error_response(res, error);
+    errorResponse(res, { error });
   }
 };
 
 const createBooking = async (req, res) => {
   try {
-    const { error, value } = createBookingSchema(req.body);
+    const { error, value } = createBookingSchema.validate(req.body);
     if (error) {
-      return error_response(res, { message: error.details[0].message });
+      return errorResponse(res, {
+        message: error.details[0].message,
+        status: 400,
+        error,
+      });
+    }
+
+    const existingBooking = await Booking.findOne({
+      where: {
+        booking_date: value.booking_date,
+        TransportServiceId: value.transportServiceId,
+        seat_number: value.seat_number,
+      },
+    });
+
+    if (existingBooking) {
+      return errorResponse(res, {
+        message: "Booking already exists or this seat is already taken",
+        status: 400,
+        error: "Booking already exists or this seat is already taken",
+      });
     }
 
     const newBooking = await Booking.create(value);
     res.status(201).send({ message: "Booking created", data: newBooking });
   } catch (error) {
-    error_response(res, error);
+    errorResponse(res, { error });
   }
 };
 
@@ -85,15 +107,20 @@ const updateBookingById = async (req, res) => {
 
     const booking = await Booking.findByPk(id);
     if (!booking) {
-      return error_response(res, {
+      return errorResponse(res, {
         message: "Booking not found",
         status: 404,
+        error: "Booking not found",
       });
     }
 
-    const { error, value } = updateBookingSchema(req.body);
+    const { error, value } = updateBookingSchema.validate(req.body);
     if (error) {
-      return error_response(res, { message: error.details[0].message });
+      return errorResponse(res, {
+        message: error.details[0].message,
+        status: 400,
+        error,
+      });
     }
 
     const [count, updated] = await Booking.update(value, {
@@ -107,7 +134,7 @@ const updateBookingById = async (req, res) => {
 
     res.status(200).send({ message: "Booking updated", data: updated[0] });
   } catch (error) {
-    error_response(res, error);
+    errorResponse(res, { error });
   }
 };
 
@@ -117,12 +144,16 @@ const deleteBookingById = async (req, res) => {
 
     const deleted = await Booking.destroy({ where: { id } });
     if (!deleted) {
-      return error_response(res, { message: "Booking not found" });
+      return errorResponse(res, {
+        message: "Booking not found",
+        status: 404,
+        error: "Booking not found",
+      });
     }
 
     res.status(200).send({ message: "Booking deleted successfully" });
   } catch (error) {
-    error_response(res, error);
+    errorResponse(res, { error });
   }
 };
 
@@ -146,9 +177,16 @@ const getBookingsByDate = async (req, res) => {
         type: sequelize.QueryTypes.SELECT,
       }
     );
+    if (!results.length) {
+      return errorResponse(res, {
+        message: "No bookings found for this date",
+        status: 404,
+        error: "No bookings found for this date",
+      });
+    }
     res.json(results);
   } catch (error) {
-    error_response(res);
+    errorResponse(res, { error });
   }
 };
 
@@ -171,9 +209,16 @@ const getActiveClients = async (req, res) => {
         type: sequelize.QueryTypes.SELECT,
       }
     );
+    if (!results.length) {
+      return errorResponse(res, {
+        message: "No active clients found",
+        status: 404,
+        error: "No active clients found",
+      });
+    }
     res.json(results);
-  } catch (e) {
-    error_response(res);
+  } catch (error) {
+    errorResponse(res, { error });
   }
 };
 
@@ -196,10 +241,16 @@ const getCancelledClients = async (req, res) => {
         type: sequelize.QueryTypes.SELECT,
       }
     );
-
+    if (!results.length) {
+      return errorResponse(res, {
+        message: "No cancelled clients found",
+        status: 404,
+        error: "No cancelled clients found",
+      });
+    }
     res.json(results);
-  } catch (e) {
-    error_response(res);
+  } catch (error) {
+    errorResponse(res, { error });
   }
 };
 
@@ -232,9 +283,17 @@ const getClientPayments = async (req, res) => {
       }
     );
 
+    if (results.length === 0) {
+      return errorResponse(res, {
+        message: "No payments found for this client",
+        status: 404,
+        error: "No payments found for this client",
+      });
+    }
+
     res.json(results);
-  } catch (e) {
-    error_response(res);
+  } catch (error) {
+    errorResponse(res, { error });
   }
 };
 
@@ -247,4 +306,5 @@ module.exports = {
   getBookingsByDate,
   getActiveClients,
   getCancelledClients,
+  getClientPayments,
 };

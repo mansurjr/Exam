@@ -4,7 +4,7 @@ const createAdminSchema = Joi.object({
   username: Joi.string().max(50).required(),
   email: Joi.string().email().max(100).required(),
   password: Joi.string().min(8).max(55).required(),
-  confirm_password: Joi.ref("password"),
+  confirm_password: Joi.any().valid(Joi.ref("password")).required(),
   phone: Joi.string().max(20).optional().allow(null, ""),
   first_name: Joi.string().max(50).required(),
   last_name: Joi.string().max(50).required(),
@@ -35,6 +35,6 @@ const updateAdminSchema = Joi.object({
 });
 
 module.exports = {
-  createUserSchema,
-  updateUserSchema,
+  createAdminSchema,
+  updateAdminSchema,
 };

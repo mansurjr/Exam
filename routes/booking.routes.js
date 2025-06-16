@@ -13,15 +13,17 @@ const {
   getActiveClients,
   getBookingsByDate,
 } = require("../controllers/booking.controller");
-const isSuperAdminGuard = require("../middlewares/guards/isSuperAdmin.guard");
 
-router.get("/",isSuperAdminGuard(["admin"]), getAllBookings);
-router.get("/:id", getBookingById);
-router.get("/services", getBookingsByDate);
-router.get("/clients", getActiveClients);
-router.get("/cancelled", getCancelledClients);
-router.post("/", createBooking);
-router.put("/:id", updateBookingById);
-router.delete("/:id", deleteBookingById);
+const roleChecker = require("../middlewares/guards/isPermittedRole.guard");
+const tokenGuard = require("../middlewares/guards/token.guard");
+
+router.get("/", tokenGuard, getAllBookings);
+router.post("/", tokenGuard, createBooking);
+router.get("/services", tokenGuard, roleChecker("admin"), getBookingsByDate);
+router.get("/clients", tokenGuard, roleChecker("admin"), getActiveClients);
+router.get("/cancelled", tokenGuard, roleChecker("admin"), getCancelledClients);
+router.get("/:id", tokenGuard, getBookingById);
+router.put("/:id", tokenGuard, updateBookingById);
+router.delete("/:id", tokenGuard, roleChecker("admin"), deleteBookingById);
 
 module.exports = router;

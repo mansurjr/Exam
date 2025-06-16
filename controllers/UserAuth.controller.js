@@ -1,24 +1,26 @@
-const User = require("../models/user");
 const { errorResponse } = require("../utils/error_response");
 const { User: UserJWT, Admin } = require("../service/jwt.service");
-const Role = require("../models/role");
 const updatePassword = require("../validation/updatePassword");
 const bcrypt = require("bcrypt");
+const { sendActivationEmail } = require("../service/email.service");
+const User = require("../models/user");
+const Card = require("../models/card");
+const config = require("config");
+const uuid = require("uuid");
 
-const loginAuthor = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({
-      where: { email },
-      include: [
-        {
-          model: Role,
-          attributes: ["name"],
-          through: { attributes: [] },
-        },
-      ],
-    });
+    if (!email || !password) {
+      return errorResponse(res, {
+        message: "Email and password are required",
+        status: 400,
+        error: "Email and password are required",
+      });
+    }
+
+    const user = await User.findOne({ where: { email }, include: Card });
 
     if (!user) {
       return errorResponse(res, {
@@ -47,10 +49,10 @@ const loginAuthor = async (req, res) => {
       email: user.email,
       isActive: user.isActive,
       isCreator: user.isCreator,
-      role: user.roles.map((r) => r.name),
+      role: user.role,
     };
 
-    const isAdmin = user.roles.some((r) => r.name === "admin");
+    const isAdmin = user.role === "admin";
     const tokenProvider = isAdmin ? Admin : UserJWT;
     const { access_token, refresh_token } =
       tokenProvider.generateTokens(payload);
@@ -68,10 +70,9 @@ const loginAuthor = async (req, res) => {
       access_token,
     });
   } catch (error) {
-    error_handler(res);
+    errorResponse(res, { error });
   }
 };
-
 
 const UserLogout = async (req, res) => {
   try {
@@ -110,10 +111,10 @@ const RefreshToken = async (req, res) => {
         status: 401,
       });
     }
+    const service = req.decoded.role === "admin" ? Admin : UserJWT;
+    const decoded = service.verifyRefreshToken(refresh_token);
 
-    const decoded = UserJWT.verifyAccessToken(refresh_token);
-
-    const user = await User.findAll(decoded.id);
+    const user = await User.findByPk(decoded.id);
     if (!user) {
       return errorResponse(res, {
         message: "Invalid refresh token",
@@ -149,7 +150,7 @@ const RefreshToken = async (req, res) => {
       access_token: access_token,
     });
   } catch (error) {
-    error_handler(res);
+    errorResponse(res, { error });
   }
 };
 
@@ -161,27 +162,34 @@ const ActivateUser = async (req, res) => {
     await user.save();
     res
       .status(200)
-      .send({ message: "Your account has been activated successfully" });
+      .json({ message: "Your account has been activated successfully" });
   } catch (error) {
-    error_handler(res);
+    errorResponse(res, { error });
   }
 };
 
 const ResendActivationLink = async (req, res) => {
   try {
-    const link = User.findOne({ where: { id: req.params.id } });
+    const link = await User.findOne({ where: { id: req.params.id } });
     if (!link) {
       return errorResponse(res, {
         message: "Activation link not found",
         status: 404,
       });
     }
+    if (link.isActive) {
+      return errorResponse(res, {
+        message: "Your account is already activated",
+        status: 400,
+      });
+    }
     link.activation_link = uuid.v4();
+    console.log(link);
     await link.save();
-    await mailService.sendMail(link.email, link.activation_link);
+    await sendActivationEmail(link.email, link.activation_link);
     res.status(200).send({ message: "Activation link sent successfully" });
   } catch (error) {
-    errorResponse(res);
+    errorResponse(res, { error });
   }
 };
 
@@ -224,7 +232,7 @@ const ResetPassword = async (req, res) => {
 };
 
 module.exports = {
-  loginAuthor,
+  login,
   UserLogout,
   RefreshToken,
   ActivateUser,

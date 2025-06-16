@@ -2,7 +2,6 @@ const { createLogger, format, transports } = require("winston");
 const { combine, timestamp, label, printf, prettyPrint, json, colorize } =
   format;
 require("winston-mongodb");
-const config = require("config");
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
   return `${timestamp} [${label}] ${level}: ${message}`;
@@ -10,7 +9,7 @@ const myFormat = printf(({ level, message, label, timestamp }) => {
 
 const logger = createLogger({
   exitOnError: false,
-  format: combine(label({ label: "IT TERM" }), timestamp(), myFormat),
+  format: combine(label({ label: "TransportService" }), timestamp(), myFormat),
   transports: [
     new transports.Console({
       level: "debug",
@@ -22,20 +21,10 @@ const logger = createLogger({
       format: combine(json()),
     }),
     new transports.File({ filename: "combined.log" }),
-    new transports.MongoDB({
-      db: config.get("uri"),
-      collection: "log",
-      options: { useUnifiedTopology: true },
-    }),
   ],
   exceptionHandlers: [new transports.File({ filename: "exceptions.log" })],
   rejectionHandlers: [
     new transports.File({ filename: "rejections.log" }),
-    new transports.MongoDB({
-      db: config.get("uri"),
-      collection: "rejections",
-      options: { useUnifiedTopology: true },
-    }),
   ],
 });
 

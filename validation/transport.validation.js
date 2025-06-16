@@ -8,6 +8,7 @@ const createTransportServiceSchema = Joi.object({
   model: Joi.string().max(50).optional().allow(null, ""),
   status: Joi.string().valid("active", "maintenance", "occupied").optional(),
   routeId: Joi.number().integer().required(),
+  userId: Joi.number().integer().required(),
 });
 
 const updateTransportServiceSchema = Joi.object({
@@ -17,6 +18,7 @@ const updateTransportServiceSchema = Joi.object({
   reg_number: Joi.string().max(50).optional().allow(null, ""),
   model: Joi.string().max(50).optional().allow(null, ""),
   status: Joi.string().valid("active", "maintenance", "occupied").optional(),
+  userId: Joi.number().integer().optional(),
   routeId: Joi.number().integer().optional(),
 });
 

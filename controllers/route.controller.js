@@ -14,15 +14,15 @@ const getAllRoutes = async (_, res) => {
     });
 
     if (!routes.length) {
-      return error_response(res, {
+      return error_response.errorResponse(res, {
         message: "Routes not found",
         status: 404,
+        error: "Routes not found",
       });
     }
-
     res.status(200).send({ data: routes });
   } catch (error) {
-    error_response(res, error);
+    error_response.errorResponse(res, { error });
   }
 };
 
@@ -40,12 +40,15 @@ const getRouteById = async (req, res) => {
     });
 
     if (!route) {
-      return error_response(res, { message: "Route not found", status: 404 });
+      return error_response.errorResponse(res, {
+        message: "Route not found",
+        status: 404,
+      });
     }
 
     res.status(200).send({ data: route });
   } catch (error) {
-    error_response(res, error);
+    error_response.errorResponse(res, { error });
   }
 };
 
@@ -54,7 +57,7 @@ const createRoute = async (req, res) => {
     const newRoute = await Routes.create(req.body);
     res.status(201).send({ message: "Route created", data: newRoute });
   } catch (error) {
-    error_response(res, error);
+    error_response.errorResponse(res, { error });
   }
 };
 
@@ -64,7 +67,10 @@ const updateRouteById = async (req, res) => {
 
     const route = await Routes.findByPk(id);
     if (!route) {
-      return error_response(res, { message: "Route not found", status: 404 });
+      return error_response.errorResponse(res, {
+        message: "Route not found",
+        status: 404,
+      });
     }
 
     const [count, updated] = await Routes.update(req.body, {
@@ -73,12 +79,14 @@ const updateRouteById = async (req, res) => {
     });
 
     if (!count) {
-      return error_response(res, { message: "Failed to update route" });
+      return error_response.errorResponse(res, {
+        message: "Failed to update route",
+      });
     }
 
     res.status(200).send({ message: "Route updated", data: updated[0] });
   } catch (error) {
-    error_response(res, error);
+    error_response.errorResponse(res, { error });
   }
 };
 
@@ -88,12 +96,16 @@ const deleteRouteById = async (req, res) => {
 
     const deleted = await Routes.destroy({ where: { id } });
     if (!deleted) {
-      return error_response(res, { message: "Route not found", status: 404 });
+      return error_response.errorResponse(res, {
+        message: "Route not found",
+        status: 404,
+        error: "Route not found",
+      });
     }
 
     res.status(200).send({ message: "Route deleted successfully" });
   } catch (error) {
-    error_response(res, error);
+    error_response.errorResponse(res, { error });
   }
 };
 

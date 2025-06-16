@@ -1,23 +1,32 @@
+const { Admin, User } = require("../../service/jwt.service");
 const error_handler = require("../../utils/error_response");
-const config = require("config");
-const JWTService = require("../../service/jwt.service");
+const jwt = require("jsonwebtoken");
 
 module.exports = async (req, res, next) => {
   try {
     const { authorization } = req.headers;
+
     if (!authorization) {
       return res.status(401).send({ message: "Token is required" });
     }
 
     const [bearer, token] = authorization.split(" ");
-    if (bearer !== "Bearer") {
-      return res.status(401).send({ message: "It's not bearer token" });
+
+    if (bearer !== "Bearer" || !token) {
+      return res.status(401).send({ message: "Invalid Bearer token format" });
     }
 
-    const service = new JWTService(config.get(`${req.baseUrl.split("/")[2]}`));
-    let decoded;
+    const decodedToken = jwt.decode(token);
+    if (!decodedToken) {
+      return res.status(401).send({ message: "Invalid token" });
+    }
+
+    const isAdmin = decodedToken.role === "admin";
+    const service = isAdmin ? Admin : User;
+
+    let verifiedPayload;
     try {
-      decoded = await service.verify_acces(token);
+      verifiedPayload = await service.verifyAccessToken(token);
     } catch (err) {
       if (err.name === "TokenExpiredError") {
         return res.status(401).send({ message: "Token has expired" });
@@ -25,16 +34,24 @@ module.exports = async (req, res, next) => {
       if (err.name === "JsonWebTokenError") {
         return res.status(401).send({ message: "Malformed token" });
       }
-      return res.status(401).send({ message: "Invalid token" });
+      return res.status(401).send({ message: "Invalid token 2" });
     }
 
-    if (!decoded?.isActive) {
-        return error_handler(res, { status: 401, message: "User is not active" })
+    if (!verifiedPayload?.isActive) {
+      return error_handler.errorResponse(res, {
+        status: 401,
+        message: "Your account is not activated",
+        error: "Your account is not activated",
+      });
     }
 
-    req.decoded = decoded;
+    req.decoded = verifiedPayload;
     next();
   } catch (error) {
-    error_handler(res);
+    return error_handler.errorResponse(res, {
+      status: 500,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
